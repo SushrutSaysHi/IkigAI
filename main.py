@@ -322,9 +322,10 @@ def dashboard():
 
 @app.route("/upgrade", methods=["POST"])
 def upgrade():
-    id_token = request.cookies.get("token")
+    data = request.get_json(silent=True) or {}
+    id_token = data.get("idToken") or request.cookies.get("token")
     if not id_token:
-        return jsonify({"status": "error", "message": "Unauthorized: token cookie not found."}), 401
+        return jsonify({"status": "error", "message": "Unauthorized: token not provided."}), 401
     try:
         user_info = auth.verify_id_token(id_token, clock_skew_seconds=60)
         uid = user_info["uid"]

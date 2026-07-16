@@ -892,7 +892,7 @@
         <div class="plan-card">
           <div class="plan-badge">Best Value</div>
           <h3>Monthly Elite</h3>
-          <div class="plan-price">$9.99 <span>/ month</span></div>
+          <div class="plan-price">₹799 <span>/ month</span></div>
           <ul class="plan-features">
             <li>✨ Salary forecasts for each career</li>
             <li>📈 10-year industry growth metrics</li>
@@ -986,8 +986,7 @@
           const idToken = await user.getIdToken(true);
           const response = await fetch("/set-cookie", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idToken: idToken })
+                    credentials: "include",
           });
 
           const data = await response.json().catch(() => ({}));
@@ -1029,10 +1028,12 @@
       // Mock processing delay of 1.5 seconds
       setTimeout(async () => {
         try {
+          const idToken = await auth.currentUser.getIdToken(true);
           const response = await fetch("/upgrade", {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
-            credentials: "include"
+            body: JSON.stringify({ idToken })
           });
 
           const data = await response.json().catch(() => ({}));
