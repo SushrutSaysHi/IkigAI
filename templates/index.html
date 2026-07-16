@@ -1039,6 +1039,7 @@
           });
 
           const data = await response.json().catch(() => ({}));
+          console.log("/upgrade response", response.status, data);
           if (response.ok) {
             // Hide payment form and plan card, show success screen
             document.getElementById('payment-form').style.display = 'none';
@@ -1048,7 +1049,7 @@
             await window.reloadSession();
           } else {
             const message = data.message || data.error || "Payment authorization succeeded, but account upgrade failed. Please contact support.";
-            alert(message);
+            alert(message + "\n\nDebug: " + JSON.stringify(data.debug || data, null, 2));
             resetPaymentBtn();
           }
         } catch (err) {
