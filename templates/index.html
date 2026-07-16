@@ -986,7 +986,9 @@
           const idToken = await user.getIdToken(true);
           const response = await fetch("/set-cookie", {
             method: "POST",
-                    credentials: "include",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken })
           });
 
           const data = await response.json().catch(() => ({}));

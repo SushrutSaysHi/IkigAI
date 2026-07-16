@@ -550,6 +550,7 @@
                 // Send Token to Flask
                 const response = await fetch("/set-cookie", {
                     method: "POST",
+                    credentials: "include",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ idToken: idToken })
                 });

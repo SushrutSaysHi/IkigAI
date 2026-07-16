@@ -323,11 +323,30 @@ def dashboard():
 @app.route("/upgrade", methods=["POST"])
 def upgrade():
     data = request.get_json(silent=True) or {}
-    id_token = data.get("idToken") or request.cookies.get("token")
-    if not id_token:
+    id_token = data.get("idToken")
+    cookie_token = request.cookies.get("token")
+
+    if not id_token and not cookie_token:
         return jsonify({"status": "error", "message": "Unauthorized: token not provided."}), 401
+
+    def verify_token(token):
+        return auth.verify_id_token(token, clock_skew_seconds=60)
+
     try:
-        user_info = auth.verify_id_token(id_token, clock_skew_seconds=60)
+        user_info = verify_token(id_token) if id_token else verify_token(cookie_token)
+    except Exception as body_exc:
+        if cookie_token and id_token and cookie_token != id_token:
+            try:
+                user_info = verify_token(cookie_token)
+            except Exception as cookie_exc:
+                return jsonify({
+                    "status": "error",
+                    "message": f"Upgrade failed: body token error: {body_exc}; cookie token error: {cookie_exc}"
+                }), 401
+        else:
+            return jsonify({"status": "error", "message": f"Upgrade failed: {str(body_exc)}"}), 401
+
+    try:
         uid = user_info["uid"]
         auth.set_custom_user_claims(uid, {"premium": True})
         auth.revoke_refresh_tokens(uid)
