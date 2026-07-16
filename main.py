@@ -371,24 +371,25 @@ def upgrade():
     try:
         user_info = verify_token(id_token) if id_token else verify_token(cookie_token)
     except Exception as body_exc:
+        debug_payload = {
+            "body_token": debug_token(id_token),
+            "cookie_token": debug_token(cookie_token),
+        }
         if cookie_token and id_token and cookie_token != id_token:
             try:
                 user_info = verify_token(cookie_token)
             except Exception as cookie_exc:
+                debug_payload["cookie_error"] = str(cookie_exc)
                 return jsonify({
                     "status": "error",
                     "message": f"Upgrade failed: body token error: {body_exc}; cookie token error: {cookie_exc}",
-                    "debug": {
-                        "body_token": debug_token(id_token),
-                        "cookie_token": debug_token(cookie_token),
-                    },
+                    "debug": debug_payload,
                 }), 401
-        else:
-            return jsonify({
-                "status": "error",
-                "message": f"Upgrade failed: {str(body_exc)}",
-                "debug": {"token": debug_token(id_token or cookie_token)},
-            }), 401
+        return jsonify({
+            "status": "error",
+            "message": f"Upgrade failed: {str(body_exc)}",
+            "debug": debug_payload,
+        }), 401
 
     try:
         uid = user_info["uid"]
@@ -396,7 +397,15 @@ def upgrade():
         auth.revoke_refresh_tokens(uid)
         return jsonify({"status": "success", "premium": True})
     except Exception as e:
-        return jsonify({"status": "error", "message": f"Upgrade failed: {str(e)}"}), 401
+        return jsonify({
+            "status": "error",
+            "message": f"Upgrade failed: {str(e)}",
+            "debug": {
+                "body_token": debug_token(id_token),
+                "cookie_token": debug_token(cookie_token),
+                "update_error": str(e),
+            },
+        }), 401
 
 
 @app.route("/logout", methods=["POST"])

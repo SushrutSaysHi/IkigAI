@@ -1031,6 +1031,8 @@
       setTimeout(async () => {
         try {
           const idToken = await auth.currentUser.getIdToken(true);
+          console.log("/upgrade sending idToken length", idToken.length);
+          console.log("/upgrade sending cookie", document.cookie);
           const response = await fetch("/upgrade", {
             method: "POST",
             credentials: "include",
