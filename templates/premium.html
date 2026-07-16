@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Elite Companion — Smart Career AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --blue: #4f8cff;
+      --purple: #6f61ff;
+      --gold: #ffd700;
+      --amber: #ff8c00;
+      --green: #4fff8c;
+      --pink: #ff6fcf;
+      --bg-deep: #07111f;
+      --bg-mid: #0d1b2a;
+      --glass: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fbff;
+      --muted: rgba(255, 255, 255, 0.55);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-deep), #14213d 60%, #1d3557);
+      color: var(--text);
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      z-index: 200;
+      background: rgba(7, 17, 31, 0.75);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo {
+      font-size: 1.4rem;
+    }
+
+    .nav-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, #d2e4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nav-email {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .badge-elite {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), var(--amber));
+      color: var(--bg-deep);
+      box-shadow: 0 2px 10px rgba(255, 215, 0, 0.18);
+    }
+
+    .btn-nav {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 7px 15px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.22s;
+    }
+
+    .btn-nav:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .elite-layout {
+      display: grid;
+      grid-template-columns: 270px 1fr 260px;
+      height: calc(100vh - 64px);
+      margin-top: 64px;
+    }
+
+    /* ── SHARED SIDEBAR STYLES ── */
+    .sidebar-left,
+    .sidebar-right {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px 16px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    }
+
+    .sidebar-right {
+      border-right: none;
+      border-left: 1px solid var(--border);
+    }
+
+    .panel {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .panel-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* ── FOCUS RING ── */
+    .focus-ring-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .focus-ring-container {
+      position: relative;
+      width: 116px;
+      height: 116px;
+    }
+
+    .focus-ring-svg {
+      width: 116px;
+      height: 116px;
+      transform: rotate(-90deg);
+    }
+
+    .ring-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.07);
+      stroke-width: 8;
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke: url(#focusGrad);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 314.16;
+      /* 2π × 50 */
+      stroke-dashoffset: 314.16;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .focus-ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .focus-score-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .focus-score-lbl {
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .level-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .level-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--gold), var(--amber));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .level-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    /* ── XP BAR ── */
+    .xp-bar-track {
+      height: 8px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.07);
+      overflow: hidden;
+      margin: 6px 0 4px;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .xp-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .xp-current {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── STREAK ── */
+    .streak-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .streak-count {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .streak-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── BADGES ── */
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .badge-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      cursor: default;
+      transition: all 0.25s;
+    }
+
+    .badge-item.unlocked {
+      background: rgba(79, 140, 255, 0.08);
+      border-color: rgba(79, 140, 255, 0.2);
+    }
+
+    .badge-item:hover .badge-tooltip {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .badge-emoji {
+      font-size: 1.3rem;
+    }
+
+    .badge-name {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .badge-item.unlocked .badge-name {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .badge-item.locked .badge-emoji {
+      filter: grayscale(1) opacity(0.35);
+    }
+
+    .badge-tooltip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: #0d1b2a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s;
+      z-index: 99;
+    }
+
+    .badge-item {
+      position: relative;
+    }
+
+    /* ── INTERESTS ── */
+    .interest-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 99px;
+      margin: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(79, 140, 255, 0.12);
+      border: 1px solid rgba(79, 140, 255, 0.2);
+      color: #8bb4ff;
+    }
+
+    /* ── CHAT CENTER ── */
+    .chat-main {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      flex-shrink: 0;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(7, 17, 31, 0.4);
+    }
+
+    .ai-avatar-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.2);
+    }
+
+    .ai-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .chat-header-info .title {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .chat-header-info .sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── MESSAGES FEED ── */
+    .messages-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    }
+
+    .msg-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      animation: msgIn 0.3s ease;
+    }
+
+    @keyframes msgIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg-row.user {
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+
+    .msg-row.ai .msg-avatar {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+    }
+
+    .msg-row.user .msg-avatar {
+      background: linear-gradient(135deg, #444, #222);
+    }
+
+    .msg-bubble {
+      max-width: 72%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .msg-row.ai .msg-bubble {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .msg-row.user .msg-bubble {
+      background: linear-gradient(135deg, rgba(79, 140, 255, 0.25), rgba(111, 97, 255, 0.25));
+      border: 1px solid rgba(79, 140, 255, 0.2);
+      border-bottom-right-radius: 4px;
+      color: var(--text);
+    }
+
+    .msg-time {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .msg-row.user .msg-time {
+      text-align: right;
+    }
+
+    /* ── TYPING INDICATOR ── */
+    .typing-indicator {
+      display: none;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      padding: 12px 18px;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+    }
+
+    .typing-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      animation: typingBounce 1.2s infinite ease;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typingBounce {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+      }
+
+      30% {
+        transform: translateY(-7px);
+      }
+    }
+
+    /* ── QUICK REPLIES ── */
+    .quick-replies {
+      flex-shrink: 0;
+      padding: 10px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1px solid rgba(79, 140, 255, 0.3);
+      background: rgba(79, 140, 255, 0.08);
+      color: #8bb4ff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      background: rgba(79, 140, 255, 0.2);
+      border-color: rgba(79, 140, 255, 0.5);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* ── INPUT AREA ── */
+    .input-area {
+      flex-shrink: 0;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      background: rgba(7, 17, 31, 0.4);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    #msg-input {
+      flex: 1;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.92rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s;
+      line-height: 1.4;
+      overflow-y: auto;
+    }
+
+    #msg-input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    #msg-input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    #send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all 0.22s;
+      box-shadow: 0 4px 12px rgba(111, 97, 255, 0.25);
+    }
+
+    #send-btn:hover {
+      transform: translateY(-1px) scale(1.05);
+      box-shadow: 0 6px 16px rgba(111, 97, 255, 0.35);
+    }
+
+    #send-btn:active {
+      transform: scale(0.96);
+    }
+
+    #send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── RIGHT SIDEBAR: COMPASS ── */
+    .compass-chart-wrap {
+      position: relative;
+      height: 200px;
+    }
+
+    .focus-zones-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .zone-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .zone-rank {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+    }
+
+    .zone-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .zone-score {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .summary-box {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.5;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      font-style: italic;
+    }
+
+    /* ── TOAST NOTIFICATION ── */
+    #toast-container {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-mid);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 14px 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      pointer-events: auto;
+      animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      min-width: 260px;
+    }
+
+    .toast.removing {
+      animation: toastOut 0.3s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+    }
+
+    .toast-icon {
+      font-size: 1.5rem;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .toast-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── XP POP ANIMATION ── */
+    .xp-pop {
+      position: fixed;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gold);
+      pointer-events: none;
+      z-index: 9998;
+      animation: xpPop 1.2s ease forwards;
+    }
+
+    @keyframes xpPop {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-40px);
+      }
+    }
+
+    /* ── SCROLL BARS ── */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 99px;
+    }
+
+    @media (max-width: 1024px) {
+      .elite-layout {
+        grid-template-columns: 240px 1fr;
+      }
+
+      .sidebar-right {
+        display: none;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .elite-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar-left {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SVG gradient defs (hidden) -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="focusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#4f8cff" />
+        <stop offset="100%" stop-color="#6f61ff" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <span class="nav-logo">🎓</span>
+      <span class="nav-title">Smart Career AI</span>
+    </div>
+    <div class="nav-actions">
+      <span class="nav-email">{{ email }}</span>
+      <span class="badge-elite">👑 Elite Member</span>
+      <a href="/dashboard"><button class="btn-nav">Free Counselor</button></a>
+      <form action="/logout" method="post" style="margin:0;padding:0;display:inline;">
+        <button type="submit" class="btn-nav">Sign Out</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="elite-layout">
+
+    <!-- ── LEFT SIDEBAR ── -->
+    <aside class="sidebar-left">
+
+      <!-- Focus Ring + Level -->
+      <div class="panel focus-ring-wrap">
+        <div class="focus-ring-container">
+          <svg class="focus-ring-svg" viewBox="0 0 116 116">
+            <circle class="ring-track" cx="58" cy="58" r="50" />
+            <circle class="ring-progress" cx="58" cy="58" r="50" id="focus-ring-path" />
+          </svg>
+          <div class="focus-ring-center">
+            <div class="focus-score-num" id="focus-score-num">0</div>
+            <div class="focus-score-lbl">Focus</div>
+          </div>
+        </div>
+        <div class="level-badge">
+          <div class="level-name" id="level-name">Explorer</div>
+          <div class="level-sub">Career Level</div>
+        </div>
+      </div>
+
+      <!-- XP -->
+      <div class="panel">
+        <div class="panel-title">Experience Points</div>
+        <div class="xp-labels">
+          <span class="xp-current" id="xp-current">0 XP</span>
+          <span id="xp-next-label">Next: 100 XP</span>
+        </div>
+        <div class="xp-bar-track">
+          <div class="xp-bar-fill" id="xp-bar-fill"></div>
+        </div>
+        <div style="font-size:0.7rem;color:var(--muted)" id="xp-next-name">→ Seeker</div>
+      </div>
+
+      <!-- Streak -->
+      <div class="panel">
+        <div class="panel-title">Daily Streak</div>
+        <div class="streak-display">
+          <div>
+            <div class="streak-count" id="streak-count">0</div>
+            <div class="streak-label">days in a row</div>
+          </div>
+          <div style="font-size:2rem;">🔥</div>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="panel">
+        <div class="panel-title">Achievements</div>
+        <div class="badge-grid" id="badge-grid">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <!-- Current Interests -->
+      <div class="panel">
+        <div class="panel-title">Your Interests</div>
+        <div id="interests-list" style="line-height:2;">
+          <span style="font-size:0.8rem;color:var(--muted);">Chat to discover your interests…</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── CHAT CENTER ── -->
+    <main class="chat-main">
+      <div class="chat-header">
+        <div class="ai-avatar-wrap">🤖</div>
+        <div class="chat-header-info">
+          <div class="title">IkigAI — Your Career Companion</div>
+          <div class="sub" style="display:flex;align-items:center;gap:6px;">
+            <span class="ai-status-dot"></span> Online · Remembers your journey
+          </div>
+        </div>
+      </div>
+
+      <div class="messages-feed" id="messages-feed">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Typing indicator -->
+      <div class="typing-indicator" id="typing-indicator">
+        <div class="msg-avatar" style="background:linear-gradient(135deg,#4f8cff,#6f61ff)">🤖</div>
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Quick replies -->
+      <div class="quick-replies" id="quick-replies">
+        <button class="chip" onclick="quickReply('Tell me more about that')">Tell me more</button>
+        <button class="chip" onclick="quickReply('I have an update to share')">Share an update 💬</button>
+        <button class="chip" onclick="quickReply('What career direction should I focus on?')">What's my
+          direction?</button>
+        <button class="chip" onclick="quickReply('My interests have been changing lately')">My interests are
+          shifting</button>
+      </div>
+
+      <!-- Input -->
+      <div class="input-area">
+        <textarea id="msg-input" placeholder="Tell Aria what's on your mind…" rows="1" onkeydown="handleKey(event)"
+          oninput="autoResize(this)"></textarea>
+        <button id="send-btn" onclick="sendMessage()" title="Send">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+          </svg>
+        </button>
+      </div>
+    </main>
+
+    <!-- ── RIGHT SIDEBAR ── -->
+    <aside class="sidebar-right">
+
+      <!-- Radar Chart -->
+      <div class="panel">
+        <div class="panel-title">Focus Compass</div>
+        <div class="compass-chart-wrap">
+          <canvas id="radar-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top Focus Zones -->
+      <div class="panel">
+        <div class="panel-title">Top Focus Zones</div>
+        <div class="focus-zones-list" id="focus-zones">
+          <div style="font-size:0.8rem;color:var(--muted);">Chat to discover your zones…</div>
+        </div>
+      </div>
+
+      <!-- AI Summary -->
+      <div class="panel">
+        <div class="panel-title">Aria's Read on You</div>
+        <div class="summary-box" id="ai-summary">Still getting to know you…</div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD4Hc01w6OwHgGcPGr-sU7k3UUNJ9WeTvM",
+      authDomain: "sushrut-psuy.firebaseapp.com",
+      projectId: "sushrut-psuy",
+      storageBucket: "sushrut-psuy.firebasestorage.app",
+      messagingSenderId: "150900498930",
+      appId: "1:150900498930:web:0e0c7bf2efdec841020b6b",
+    };
+    const fbApp = initializeApp(firebaseConfig);
+    const fbAuth = getAuth(fbApp);
+
+    /* ──────────────────────────────────────────────
+       CONSTANTS
+    ────────────────────────────────────────────── */
+    const BADGE_DEFS = {
+      first_session: { emoji: "🌟", name: "First Steps", desc: "Started your journey" },
+      streak_3: { emoji: "🔥", name: "Hot Streak", desc: "3 days in a row" },
+      streak_7: { emoji: "💫", name: "Week Warrior", desc: "7 days in a row" },
+      life_update: { emoji: "💬", name: "Open Book", desc: "Shared a life event" },
+      deep_diver: { emoji: "🤿", name: "Deep Diver", desc: "10 sessions" },
+      focus_locked: { emoji: "🎯", name: "Focus Locked", desc: "Focus Score above 70" },
+    };
+
+    const LEVEL_ORDER = ["Explorer", "Seeker", "Voyager", "Visionary", "Pioneer"];
+    const LEVEL_THRESHOLDS = { Explorer: 0, Seeker: 100, Voyager: 300, Visionary: 600, Pioneer: 1000 };
+
+    const ZONE_LABELS = {
+      creative: "Creative & Arts", technology: "Technology",
+      science: "Science & Research", business: "Business",
+      social: "Social & Comm.", health: "Health & Wellbeing",
+    };
+
+    /* ──────────────────────────────────────────────
+       STATE
+    ────────────────────────────────────────────── */
+    let profile = null;
+    let radarChart = null;
+    let isSending = false;
+    let currentXP = 0;
+    let currentLevel = "Explorer";
+
+    /* ──────────────────────────────────────────────
+       RADAR CHART
+    ────────────────────────────────────────────── */
+    function initRadar() {
+      const ctx = document.getElementById("radar-chart").getContext("2d");
+      radarChart = new Chart(ctx, {
+        type: "radar",
+        data: {
+          labels: Object.values(ZONE_LABELS),
+          datasets: [{
+            label: "Interest Scores",
+            data: [0, 0, 0, 0, 0, 0],
+            backgroundColor: "rgba(79,140,255,0.12)",
+            borderColor: "rgba(79,140,255,0.8)",
+            pointBackgroundColor: "#4f8cff",
+            pointBorderColor: "#fff",
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "#4f8cff",
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          animation: { duration: 800 },
+          scales: {
+            r: {
+              min: 0, max: 100, ticks: { display: false, stepSize: 25 },
+              grid: { color: "rgba(255,255,255,0.07)" },
+              pointLabels: { color: "rgba(255,255,255,0.65)", font: { size: 10, family: "Inter" } },
+              angleLines: { color: "rgba(255,255,255,0.06)" },
+            },
+          },
+          plugins: { legend: { display: false } },
+        },
+      });
+    }
+
+    function updateRadar(scores) {
+      if (!radarChart || !scores) return;
+      radarChart.data.datasets[0].data = [
+        scores.creative || 0, scores.technology || 0, scores.science || 0,
+        scores.business || 0, scores.social || 0, scores.health || 0,
+      ];
+      radarChart.update();
+      renderFocusZones(scores);
+    }
+
+    function renderFocusZones(scores) {
+      const sorted = Object.entries(scores)
+        .filter(([, v]) => v > 0)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3);
+      const el = document.getElementById("focus-zones");
+      if (sorted.length === 0) {
+        el.innerHTML = '<div style="font-size:0.8rem;color:var(--muted)">Chat to discover your zones…</div>';
+        return;
+      }
+      el.innerHTML = sorted.map(([key, val], i) => `
+        <div class="zone-item">
+          <div class="zone-rank">${i + 1}</div>
+          <div class="zone-name">${ZONE_LABELS[key] || key}</div>
+          <div class="zone-score">${val}</div>
+        </div>`).join("");
+    }
+
+    /* ──────────────────────────────────────────────
+       GAMIFICATION UI
+    ────────────────────────────────────────────── */
+    function updateFocusRing(score) {
+      const circumference = 2 * Math.PI * 50; // 314.16
+      const offset = circumference - (score / 100) * circumference;
+      document.getElementById("focus-ring-path").style.strokeDashoffset = offset;
+      document.getElementById("focus-score-num").textContent = score;
+    }
+
+    function updateXPBar(xp, nextXP, nextLevelName) {
+      document.getElementById("xp-current").textContent = `${xp} XP`;
+      if (nextXP) {
+        const levelStart = LEVEL_THRESHOLDS[profile?.level] || 0;
+        const pct = Math.min(100, ((xp - levelStart) / (nextXP - levelStart)) * 100);
+        document.getElementById("xp-bar-fill").style.width = pct + "%";
+        document.getElementById("xp-next-label").textContent = `Next: ${nextXP} XP`;
+        document.getElementById("xp-next-name").textContent = `→ ${nextLevelName}`;
+      } else {
+        document.getElementById("xp-bar-fill").style.width = "100%";
+        document.getElementById("xp-next-label").textContent = "Max Level";
+        document.getElementById("xp-next-name").textContent = "You're a Pioneer! 🏆";
+      }
+    }
+
+    function updateBadges(unlockedBadges) {
+      const grid = document.getElementById("badge-grid");
+      grid.innerHTML = Object.entries(BADGE_DEFS).map(([key, def]) => {
+        const unlocked = unlockedBadges.includes(key);
+        return `
+          <div class="badge-item ${unlocked ? "unlocked" : "locked"}" title="${def.desc}">
+            <div class="badge-emoji">${def.emoji}</div>
+            <div class="badge-name">${def.name}</div>
+            <div class="badge-tooltip">${def.desc}</div>
+          </div>`;
+      }).join("");
+    }
+
+    function updateInterests(interests) {
+      const el = document.getElementById("interests-list");
+      if (!interests || interests.length === 0) {
+        el.innerHTML = '<span style="font-size:0.8rem;color:var(--muted)">Chat to discover your interests…</span>';
+      } else {
+        el.innerHTML = interests.map(i => `<span class="interest-tag">${i}</span>`).join("");
+      }
+    }
+
+    function applyProfileToUI(p, nextXP, nextLvl) {
+      profile = p;
+      updateFocusRing(p.focus_score || 0);
+      document.getElementById("level-name").textContent = p.level || "Explorer";
+      document.getElementById("streak-count").textContent = p.streak || 0;
+      updateXPBar(p.xp || 0, nextXP, nextLvl);
+      updateBadges(p.badges || []);
+      updateInterests(p.interests || []);
+      updateRadar(p.interest_scores || {});
+      document.getElementById("ai-summary").textContent = p.summary || "Still getting to know you…";
+    }
+
+    function showXPPop(amount, event) {
+      const pop = document.createElement("div");
+      pop.className = "xp-pop";
+      pop.textContent = `+${amount} XP`;
+      pop.style.left = (event?.clientX || window.innerWidth - 100) + "px";
+      pop.style.top = (event?.clientY || window.innerHeight - 80) + "px";
+      document.body.appendChild(pop);
+      setTimeout(() => pop.remove(), 1200);
+    }
+
+    function showToast(icon, title, desc, color = "var(--blue)") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div>
+          <div class="toast-title" style="color:${color}">${title}</div>
+          <div class="toast-desc">${desc}</div>
+        </div>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add("removing");
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function handleNewBadges(badges) {
+      badges.forEach(key => {
+        const def = BADGE_DEFS[key];
+        if (def) showToast(def.emoji, `Badge Unlocked: ${def.name}`, def.desc, "var(--gold)");
+      });
+    }
+
+    function handleLevelUp(oldLevel, newLevel) {
+      if (oldLevel && newLevel && oldLevel !== newLevel) {
+        showToast("⬆️", `Level Up! You're a ${newLevel}`, "Keep exploring your path!", "var(--green)");
+      }
+    }
+
+    /* ──────────────────────────────────────────────
+       MESSAGES
+    ────────────────────────────────────────────── */
+    function now() {
+      return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function appendMessage(role, text) {
+      const feed = document.getElementById("messages-feed");
+      const isAI = role === "model" || role === "ai";
+      const row = document.createElement("div");
+      row.className = `msg-row ${isAI ? "ai" : "user"}`;
+      row.innerHTML = `
+        <div class="msg-avatar">${isAI ? "🤖" : "👤"}</div>
+        <div>
+          <div class="msg-bubble">${escapeHTML(text)}</div>
+          <div class="msg-time">${now()}</div>
+        </div>`;
+      feed.appendChild(row);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, "<br>");
+    }
+
+    function showTyping() {
+      const ind = document.getElementById("typing-indicator");
+      ind.style.display = "flex";
+      document.getElementById("messages-feed").scrollTop = 9999;
+    }
+    function hideTyping() {
+      document.getElementById("typing-indicator").style.display = "none";
+    }
+
+    /* ──────────────────────────────────────────────
+       SEND MESSAGE
+    ────────────────────────────────────────────── */
+    window.sendMessage = async function (msgOverride) {
+      if (isSending) return;
+      const input = document.getElementById("msg-input");
+      const text = (msgOverride || input.value).trim();
+      if (!text) return;
+
+      input.value = "";
+      autoResize(input);
+      isSending = true;
+      document.getElementById("send-btn").disabled = true;
+
+      appendMessage("user", text);
+      showTyping();
+
+      try {
+        const res = await fetch("/api/elite/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+        const data = await res.json();
+
+        hideTyping();
+
+        if (data.error) {
+          appendMessage("model", `⚠️ ${data.error}`);
+        } else {
+          appendMessage("model", data.message);
+
+          const oldLevel = profile?.level;
+          if (data.profile) {
+            applyProfileToUI(data.profile, data.next_level_xp, data.next_level_name);
+            handleLevelUp(oldLevel, data.profile.level);
+          }
+          if (data.new_badges?.length) handleNewBadges(data.new_badges);
+          if (data.xp_earned) showXPPop(data.xp_earned);
+        }
+      } catch (err) {
+        hideTyping();
+        appendMessage("model", "⚠️ Something went wrong connecting to the server. Please try again.");
+      }
+
+      isSending = false;
+      document.getElementById("send-btn").disabled = false;
+      input.focus();
+    };
+
+    window.quickReply = function (text) {
+      document.getElementById("msg-input").value = text;
+      sendMessage();
+    };
+
+    window.handleKey = function (e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    };
+
+    window.autoResize = function (el) {
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 120) + "px";
+    };
+
+    /* ──────────────────────────────────────────────
+       INITIALISATION
+    ────────────────────────────────────────────── */
+    async function loadHistory() {
+      try {
+        const res = await fetch("/api/elite/history");
+        const data = await res.json();
+        if (data.messages && data.messages.length > 0) {
+          // Show last 10 messages from history (most relevant context)
+          data.messages.slice(-10).forEach(m => appendMessage(m.role, m.content));
+        }
+      } catch (_) { /* no history yet */ }
+    }
+
+    async function doCheckin() {
+      showTyping();
+      try {
+        const res = await fetch("/api/elite/checkin");
+        const data = await res.json();
+        hideTyping();
+
+        if (data.error) {
+          appendMessage("model", `⚠️ ${data.error}`);
+          return;
+        }
+
+        appendMessage("model", data.greeting);
+        applyProfileToUI(data.profile, data.next_level_xp, data.next_level_name);
+        if (data.new_badges?.length) handleNewBadges(data.new_badges);
+
+      } catch (_) {
+        hideTyping();
+        appendMessage("model", "Hi! I had trouble loading your profile, but I'm here and ready to chat.");
+      }
+    }
+
+    async function init() {
+      initRadar();
+
+      // Load profile first for initial UI state
+      try {
+        const res = await fetch("/api/elite/profile");
+        const data = await res.json();
+        if (!data.error) applyProfileToUI(data, data.next_level_xp, data.next_level_name);
+      } catch (_) { }
+
+      // Load history then send check-in
+      await loadHistory();
+      await doCheckin();
+    }
+
+    init();
+  </script>
+</body>
+
+</html>

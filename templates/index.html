@@ -1,0 +1,1090 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Career Counselor</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: 'Inter', Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #07111f, #14213d 60%, #1d3557);
+      color: #f8fbff;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Navbar styling */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: rgba(7, 17, 31, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      z-index: 100;
+      box-sizing: border-box;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo {
+      font-size: 1.5rem;
+    }
+
+    .nav-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff, #d2e4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .user-email {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+    }
+
+    .badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .badge-free {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .badge-premium {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #07111f;
+      box-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);
+      font-weight: 700;
+    }
+
+    .btn-upgrade {
+      background: linear-gradient(90deg, #ffd700, #ff8c00);
+      color: #07111f;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+    }
+
+    .btn-upgrade:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(255, 215, 0, 0.25);
+      background: linear-gradient(90deg, #ffe033, #ffa01a);
+    }
+
+    .btn-companion {
+      background: linear-gradient(90deg, #4f8cff, #6f61ff);
+      color: #fff;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+    }
+
+    .btn-companion:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(79, 140, 255, 0.35);
+    }
+
+    .btn-logout {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .btn-logout:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 105px 20px 48px;
+      box-sizing: border-box;
+    }
+
+    .hero {
+      align-items: start;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      margin: 40px;
+      padding: 32px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.25rem;
+      line-height: 1.2;
+      margin-top: 0;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff, #abc7fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2,
+    h3 {
+      font-family: 'Outfit', sans-serif;
+      margin-top: 0;
+    }
+
+    p {
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(79, 140, 255, 0.12);
+      color: #8bb4ff;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      border: 1px solid rgba(79, 140, 255, 0.2);
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.95rem;
+      background: rgba(0, 0, 0, 0.2);
+      color: #fff;
+      transition: all 0.25s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #4f8cff;
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    button[type="submit"] {
+      cursor: pointer;
+      background: linear-gradient(90deg, #4f8cff, #6f61ff);
+      color: white;
+      border: none;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-top: 8px;
+      box-shadow: 0 4px 15px rgba(111, 97, 255, 0.2);
+    }
+
+    button[type="submit"]:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(111, 97, 255, 0.35);
+      background: linear-gradient(90deg, #5b95ff, #7c70ff);
+    }
+
+    .error {
+      color: #ffb4b4;
+      background: rgba(255, 79, 79, 0.1);
+      border: 1px solid rgba(255, 79, 79, 0.2);
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .results {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .result-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #93c5fd;
+      margin: 8px 0;
+    }
+
+    ul {
+      padding-left: 20px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    /* Premium Insights Styling */
+    .premium-insights-section {
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 20px;
+    }
+
+    .premium-insights-section h4 {
+      margin: 0 0 14px 0;
+      font-size: 1.05rem;
+      color: #ffd700;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .premium-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .insight-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .insight-item.full-width {
+      grid-column: span 2;
+    }
+
+    .insight-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 4px;
+    }
+
+    .insight-value {
+      font-weight: 600;
+      color: #fff;
+      font-size: 1.05rem;
+    }
+
+    .insight-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.88rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .insight-list li {
+      margin-bottom: 4px;
+    }
+
+    .premium-locked-overlay {
+      background: rgba(255, 255, 255, 0.01);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.02);
+    }
+
+    .premium-locked-overlay::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.03), transparent);
+      pointer-events: none;
+    }
+
+    .lock-icon {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+
+    .premium-locked-overlay h5 {
+      margin: 0 0 6px 0;
+      font-size: 1rem;
+      color: #ffd700;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .premium-locked-overlay p {
+      margin: 0 0 14px 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.4;
+    }
+
+    .btn-upgrade-sm {
+      background: linear-gradient(90deg, #ffd700, #ff8c00);
+      color: #07111f;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 10px rgba(255, 215, 0, 0.15);
+    }
+
+    .btn-upgrade-sm:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(255, 215, 0, 0.25);
+      background: linear-gradient(90deg, #ffe033, #ffa01a);
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeInModal 0.25s ease;
+    }
+
+    @keyframes fadeInModal {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-card {
+      background: #0d1b2a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      width: 92%;
+      max-width: 460px;
+      padding: 32px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      position: relative;
+      box-sizing: border-box;
+      animation: scaleInModal 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes scaleInModal {
+      from {
+        transform: scale(0.92);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .modal-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-family: 'Outfit', sans-serif;
+      margin: 0 0 6px 0;
+      font-size: 1.45rem;
+      background: linear-gradient(135deg, #ffd700, #ffa01a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .modal-header p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.4;
+    }
+
+    .plans-container {
+      margin-bottom: 20px;
+    }
+
+    .plan-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 2px solid #ffd700;
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.04);
+    }
+
+    .plan-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(90deg, #ffd700, #ff8c00);
+      color: #07111f;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 5px;
+      text-transform: uppercase;
+    }
+
+    .plan-card h3 {
+      margin: 0 0 4px 0;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .plan-price {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .plan-price span {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .plan-features {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .plan-features li {
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Payment Form */
+    #payment-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #payment-form .form-group {
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #payment-form label {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    #payment-form input {
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .input-icon-wrapper {
+      position: relative;
+    }
+
+    .card-brand-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      user-select: none;
+    }
+
+    .btn-pay {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(90deg, #ffd700, #ff8c00);
+      color: #07111f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+      margin-top: 6px;
+    }
+
+    .btn-pay:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(255, 215, 0, 0.25);
+      background: linear-gradient(90deg, #ffe033, #ffa01a);
+    }
+
+    .btn-pay:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Success Screen */
+    .success-screen {
+      text-align: center;
+      padding: 10px 0;
+      animation: fadeInSuccess 0.3s ease;
+    }
+
+    @keyframes fadeInSuccess {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .success-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(79, 255, 140, 0.12);
+      border: 2px solid #4fff8c;
+      color: #4fff8c;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 15px rgba(79, 255, 140, 0.15);
+    }
+
+    .success-screen h2 {
+      font-family: 'Outfit', sans-serif;
+      margin: 0 0 8px 0;
+      font-size: 1.35rem;
+      color: #4fff8c;
+    }
+
+    .success-screen p {
+      margin: 0 0 20px 0;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.4;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(7, 17, 31, 0.3);
+      border-radius: 50%;
+      border-top-color: #07111f;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .navbar {
+        padding: 0 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header Navbar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <span class="nav-logo">🎓</span>
+      <span class="nav-title">Smart Career AI</span>
+    </div>
+    <div class="nav-actions">
+      <span class="user-email">{{ email }}</span>
+      {% if is_premium %}
+      <span class="badge badge-premium">👑 Elite Member</span>
+      <a href="/elite" class="btn-companion">✨ Open Companion</a>
+      {% else %}
+      <span class="badge badge-free">Free Member</span>
+      <button class="btn-upgrade" onclick="openCheckout()">Upgrade to Elite 👑</button>
+      {% endif %}
+      <form action="/logout" method="post" style="display:inline; margin:0; padding:0;">
+        <button type="submit" class="btn-logout">Sign Out</button>
+      </form>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="hero">
+      <div class="card">
+        <span class="pill">🎓 Smart AI Career Counselor</span>
+        <h1>Discover career paths that fit your profile.</h1>
+        <p>Share your academic background, interests, and strengths, and the assistant will suggest three strong career
+          options with a step-by-step roadmap.</p>
+      </div>
+
+      <div class="card">
+        <h2>Student Profile</h2>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        <form action="/recommend" method="post">
+          <label for="academic_background">Academic Background</label>
+          <input id="academic_background" name="academic_background"
+            placeholder="e.g. High School, Science Stream (PCM)" value="{{ academic_background }}" required />
+
+          <label for="favorite_subjects">Favorite Subjects</label>
+          <textarea id="favorite_subjects" name="favorite_subjects" rows="3"
+            placeholder="e.g. Mathematics, Physics, Art">{{ favorite_subjects }}</textarea>
+
+          <label for="hobbies_interests">Hobbies &amp; Interests</label>
+          <textarea id="hobbies_interests" name="hobbies_interests" rows="3"
+            placeholder="e.g. Video games, Sketching, Coding">{{ hobbies_interests }}</textarea>
+
+          <label for="skills">Skills</label>
+          <textarea id="skills" name="skills" rows="3"
+            placeholder="e.g. Python, Graphic design, Analytical thinking">{{ skills }}</textarea>
+
+          <label for="work_env">Preferred Work Environment</label>
+          <select id="work_env" name="work_env">
+            <option value="Remote / Tech-focused office" {% if work_env=='Remote / Tech-focused office' %}selected{%
+              endif %}>Remote / Tech-focused office</option>
+            <option value="Creative studio / Design agency" {% if work_env=='Creative studio / Design agency'
+              %}selected{% endif %}>Creative studio / Design agency</option>
+            <option value="Research lab / Academic" {% if work_env=='Research lab / Academic' %}selected{% endif %}>
+              Research lab / Academic</option>
+            <option value="Corporate / Business" {% if work_env=='Corporate / Business' %}selected{% endif %}>Corporate
+              / Business</option>
+            <option value="Outdoor / Hands-on" {% if work_env=='Outdoor / Hands-on' %}selected{% endif %}>Outdoor /
+              Hands-on</option>
+          </select>
+
+          <button type="submit">Generate Career Paths 🚀</button>
+        </form>
+      </div>
+    </div>
+
+    {% if recommendations %}
+    <div class="card" style="margin-top: 24px;">
+      <h2>🎯 Your Recommended Career Paths</h2>
+      <div class="results">
+        {% for rec in recommendations %}
+        <div class="result-card">
+          <h3>{{ rec.title }}</h3>
+          <div class="metric">{{ rec.fit_score }}</div>
+          <p><strong>Why it fits:</strong> {{ rec.why_it_fits }}</p>
+          <p><strong>Roadmap:</strong></p>
+          <ul>
+            {% for step in rec.roadmap %}
+            <li>{{ step }}</li>
+            {% endfor %}
+          </ul>
+
+          <!-- Locked or Unlocked Premium Insights Section -->
+          <div class="premium-insights-section">
+            <h4>💎 Premium Career Insights</h4>
+            {% if is_premium %}
+            <div class="premium-grid">
+              <div class="insight-item">
+                <div class="insight-label">Salary Range</div>
+                <div class="insight-value">{{ rec.salary_range or 'N/A' }}</div>
+              </div>
+              <div class="insight-item">
+                <div class="insight-label">10-Yr Growth Forecast</div>
+                <div class="insight-value">{{ rec.growth_forecast or 'N/A' }}</div>
+              </div>
+              <div class="insight-item full-width">
+                <div class="insight-label">Recommended Certifications</div>
+                <ul class="insight-list">
+                  {% if rec.certifications %}
+                  {% for cert in rec.certifications %}
+                  <li>{{ cert }}</li>
+                  {% endfor %}
+                  {% else %}
+                  <li>None recommended.</li>
+                  {% endif %}
+                </ul>
+              </div>
+              <div class="insight-item full-width">
+                <div class="insight-label">Mock Interview Questions</div>
+                <ul class="insight-list">
+                  {% if rec.interview_prep %}
+                  {% for quest in rec.interview_prep %}
+                  <li>"{{ quest }}"</li>
+                  {% endfor %}
+                  {% else %}
+                  <li>None provided.</li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+            {% else %}
+            <div class="premium-locked-overlay">
+              <div class="lock-icon">🔒</div>
+              <h5>Unlock Elite Tier Insights</h5>
+              <p>Access salary statistics, growth rates, key certifications, and custom interview prep questions for
+                this career.</p>
+              <button type="button" class="btn-upgrade-sm" onclick="openCheckout()">Upgrade to Elite</button>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Subscription Checkout Modal -->
+  <div id="checkout-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <button type="button" class="modal-close" onclick="closeCheckout()">&times;</button>
+      <div class="modal-header">
+        <h2>Upgrade to Elite Member 👑</h2>
+        <p>Unlock deep AI analysis, salary forecasts, market growth, industry certifications, and interview prep
+          questions.</p>
+      </div>
+
+      <div class="plans-container">
+        <div class="plan-card">
+          <div class="plan-badge">Best Value</div>
+          <h3>Monthly Elite</h3>
+          <div class="plan-price">$9.99 <span>/ month</span></div>
+          <ul class="plan-features">
+            <li>✨ Salary forecasts for each career</li>
+            <li>📈 10-year industry growth metrics</li>
+            <li>🛡️ Recommended professional certifications</li>
+            <li>💬 3 tailored mock interview prep questions</li>
+            <li>⚡ High priority response times</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Payment Form -->
+      <form id="payment-form" onsubmit="processPayment(event)">
+        <div class="form-group">
+          <label for="card-name">Cardholder Name</label>
+          <input type="text" id="card-name" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label for="card-number">Card Number</label>
+          <div class="input-icon-wrapper">
+            <input type="text" id="card-number" placeholder="4111 2222 3333 4444" maxlength="19" required>
+            <span class="card-brand-icon" id="card-brand-icon">💳</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="card-expiry">Expiry Date</label>
+            <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" required>
+          </div>
+          <div class="form-group">
+            <label for="card-cvc">CVC</label>
+            <input type="text" id="card-cvc" placeholder="123" maxlength="4" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-pay" id="btn-pay">
+          <span id="pay-text">Pay &amp; Subscribe Now</span>
+          <span class="spinner" id="pay-spinner"></span>
+        </button>
+      </form>
+
+      <!-- Payment Success Screen -->
+      <div id="payment-success" class="success-screen" style="display:none;">
+        <div class="success-icon">✓</div>
+        <h2>Payment Successful!</h2>
+        <p>Welcome to Elite membership. Your premium access has been activated.</p>
+        <button type="button" class="btn-pay" onclick="reloadSession()">Go to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script importing Firebase and managing Modal + Subscriptions -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyD4Hc01w6OwHgGcPGr-sU7k3UUNJ9WeTvM",
+      authDomain: "sushrut-psuy.firebaseapp.com",
+      projectId: "sushrut-psuy",
+      storageBucket: "sushrut-psuy.firebasestorage.app",
+      messagingSenderId: "150900498930",
+      appId: "1:150900498930:web:0e0c7bf2efdec841020b6b",
+      measurementId: "G-44EZ4YH6JG"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Modal Triggers
+    window.openCheckout = function () {
+      document.getElementById('checkout-modal').style.display = 'flex';
+      document.getElementById('payment-form').style.display = 'flex';
+      document.getElementById('payment-success').style.display = 'none';
+    };
+
+    window.closeCheckout = function () {
+      document.getElementById('checkout-modal').style.display = 'none';
+    };
+
+    window.reloadSession = async function () {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          // Force refresh ID token to get updated custom claims
+          const idToken = await user.getIdToken(true);
+
+          // Set Flask session cookie
+          const response = await fetch("/set-cookie", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken: idToken })
+          });
+
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            window.location.reload();
+          }
+        } catch (e) {
+          console.error("Token refresh failed: ", e);
+          window.location.reload();
+        }
+      } else {
+        window.location.reload();
+      }
+    };
+
+    window.processPayment = async function (event) {
+      event.preventDefault();
+
+      const btnPay = document.getElementById('btn-pay');
+      const paySpinner = document.getElementById('pay-spinner');
+      const payText = document.getElementById('pay-text');
+
+      // Visual loading state
+      btnPay.disabled = true;
+      paySpinner.style.display = 'block';
+      payText.innerText = "Processing Payment...";
+
+      // Mock processing delay of 1.5 seconds
+      setTimeout(async () => {
+        try {
+          const response = await fetch("/upgrade", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+          });
+
+          if (response.ok) {
+            // Hide payment form and plan card, show success screen
+            document.getElementById('payment-form').style.display = 'none';
+            document.querySelector('.plans-container').style.display = 'none';
+            document.getElementById('payment-success').style.display = 'block';
+            document.querySelector('.modal-close').style.display = 'none'; // Lock close button during success
+          } else {
+            alert("Payment authorization succeeded, but account upgrade failed. Please contact support.");
+            resetPaymentBtn();
+          }
+        } catch (err) {
+          alert("Error connecting to server. Please try again.");
+          resetPaymentBtn();
+        }
+      }, 1500);
+
+      function resetPaymentBtn() {
+        btnPay.disabled = false;
+        paySpinner.style.display = 'none';
+        payText.innerText = "Pay & Subscribe Now";
+      }
+    };
+
+    // Card Formatting Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      const cardNumber = document.getElementById('card-number');
+      if (cardNumber) {
+        cardNumber.addEventListener('input', function (e) {
+          let val = e.target.value.replace(/\D/g, '');
+          let formatted = '';
+          for (let i = 0; i < val.length; i++) {
+            if (i > 0 && i % 4 === 0) formatted += ' ';
+            formatted += val[i];
+          }
+          e.target.value = formatted;
+
+          const brandIcon = document.getElementById('card-brand-icon');
+          if (val.startsWith('4')) brandIcon.innerText = '💳 Visa';
+          else if (val.startsWith('5')) brandIcon.innerText = '💳 MC';
+          else if (val.startsWith('3')) brandIcon.innerText = '💳 Amex';
+          else brandIcon.innerText = '💳';
+        });
+      }
+
+      const cardExpiry = document.getElementById('card-expiry');
+      if (cardExpiry) {
+        cardExpiry.addEventListener('input', function (e) {
+          let val = e.target.value.replace(/\D/g, '');
+          if (val.length >= 2) {
+            e.target.value = val.substring(0, 2) + '/' + val.substring(2, 4);
+          } else {
+            e.target.value = val;
+          }
+        });
+      }
+
+      const cardCvc = document.getElementById('card-cvc');
+      if (cardCvc) {
+        cardCvc.addEventListener('input', function (e) {
+          e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>
