@@ -13,13 +13,13 @@ from pydantic import BaseModel, Field
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key")
 
-os.environ.setdefault("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6JdXQgYP-VvE6YfQmgw7UE6UMf_1OpWNahpmUO1kmIEag"))
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
 
 cred = credentials.Certificate("firebase-service-account.json")
 firebase_admin.initialize_app(cred)
 db = fb_firestore.client()
 
-gemini_client = genai.Client()
+gemini_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
 # ================================================================
 # FREE-TIER PYDANTIC MODELS
@@ -93,6 +93,12 @@ def get_verified_user(req):
     if not id_token:
         raise Exception("Not authenticated — no token cookie found.")
     return auth.verify_id_token(id_token, clock_skew_seconds=60)
+
+
+def get_cookie_options() -> dict:
+    """Return cookie options that work reliably in HTTPS deployments like Vercel."""
+    is_secure = request.is_secure or "vercel.app" in request.host or "now.sh" in request.host
+    return {"httponly": True, "secure": is_secure, "samesite": "Lax"}
 
 
 def get_profile(uid: str) -> dict:
@@ -287,8 +293,8 @@ def set_cookie():
     id_token = data.get("idToken")
     try:
         decoded = auth.verify_id_token(id_token, clock_skew_seconds=60)
-        resp = make_response(jsonify({"status": "success"}))
-        resp.set_cookie("token", id_token, httponly=True, secure=False)  # secure=True in prod
+        resp = make_response(jsonify({"status": "success", "premium": decoded.get("premium", False)}))
+        resp.set_cookie("token", id_token, **get_cookie_options())
         return resp
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 401
@@ -318,14 +324,15 @@ def dashboard():
 def upgrade():
     id_token = request.cookies.get("token")
     if not id_token:
-        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+        return jsonify({"status": "error", "message": "Unauthorized: token cookie not found."}), 401
     try:
         user_info = auth.verify_id_token(id_token, clock_skew_seconds=60)
         uid = user_info["uid"]
         auth.set_custom_user_claims(uid, {"premium": True})
-        return jsonify({"status": "success"})
+        auth.revoke_refresh_tokens(uid)
+        return jsonify({"status": "success", "premium": True})
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 401
+        return jsonify({"status": "error", "message": f"Upgrade failed: {str(e)}"}), 401
 
 
 @app.route("/logout", methods=["POST"])
@@ -378,6 +385,13 @@ def recommend():
            "The user is on the free tier. Do NOT populate salary_range, growth_forecast, "
            "certifications, or interview_prep — leave them null.")
     )
+
+    if gemini_client is None:
+        return render_template(
+            "index.html",
+            error="The Gemini API key is not configured. Please add GEMINI_API_KEY in your Vercel project settings.",
+            **base_ctx,
+        ), 500
 
     try:
         resp = gemini_client.models.generate_content(

@@ -975,30 +975,43 @@
 
     window.reloadSession = async function () {
       const user = auth.currentUser;
-      if (user) {
-        try {
-          // Force refresh ID token to get updated custom claims
-          const idToken = await user.getIdToken(true);
+      if (!user) {
+        window.location.reload();
+        return;
+      }
 
-          // Set Flask session cookie
+      let lastError = null;
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        try {
+          const idToken = await user.getIdToken(true);
           const response = await fetch("/set-cookie", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ idToken: idToken })
           });
 
-          if (response.ok) {
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.premium === true) {
             window.location.reload();
+            return;
+          }
+
+          if (response.ok && data.premium === false) {
+            lastError = new Error("Premium claim not available yet.");
           } else {
-            window.location.reload();
+            lastError = new Error(data.message || "Session refresh failed.");
           }
         } catch (e) {
-          console.error("Token refresh failed: ", e);
-          window.location.reload();
+          lastError = e;
         }
-      } else {
-        window.location.reload();
+
+        if (attempt < 4) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
+
+      console.error("Token refresh failed: ", lastError);
+      window.location.reload();
     };
 
     window.processPayment = async function (event) {
@@ -1018,17 +1031,21 @@
         try {
           const response = await fetch("/upgrade", {
             method: "POST",
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
           });
 
+          const data = await response.json().catch(() => ({}));
           if (response.ok) {
             // Hide payment form and plan card, show success screen
             document.getElementById('payment-form').style.display = 'none';
             document.querySelector('.plans-container').style.display = 'none';
             document.getElementById('payment-success').style.display = 'block';
             document.querySelector('.modal-close').style.display = 'none'; // Lock close button during success
+            await window.reloadSession();
           } else {
-            alert("Payment authorization succeeded, but account upgrade failed. Please contact support.");
+            const message = data.message || data.error || "Payment authorization succeeded, but account upgrade failed. Please contact support.";
+            alert(message);
             resetPaymentBtn();
           }
         } catch (err) {
