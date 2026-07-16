@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import base64
 from datetime import datetime, timedelta
 from typing import Optional
 from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for
@@ -99,6 +100,31 @@ def get_cookie_options() -> dict:
     """Return cookie options that work reliably in HTTPS deployments like Vercel."""
     is_secure = request.is_secure or "vercel.app" in request.host or "now.sh" in request.host
     return {"httponly": True, "secure": is_secure, "samesite": "Lax"}
+
+
+def parse_token_metadata(token: str) -> dict:
+    """Decode JWT header/payload without verification for debugging invalid signature issues."""
+    parts = token.split('.')
+    if len(parts) != 3:
+        return {}
+
+    def decode_part(part: str):
+        try:
+            padding = '=' * (-len(part) % 4)
+            return json.loads(base64.urlsafe_b64decode(part + padding).decode('utf-8'))
+        except Exception:
+            return None
+
+    header = decode_part(parts[0])
+    payload = decode_part(parts[1])
+    return {
+        'iss': payload.get('iss') if isinstance(payload, dict) else None,
+        'aud': payload.get('aud') if isinstance(payload, dict) else None,
+        'sub': payload.get('sub') if isinstance(payload, dict) else None,
+        'email': payload.get('email') if isinstance(payload, dict) else None,
+        'header': header,
+        'payload': payload,
+    }
 
 
 def get_profile(uid: str) -> dict:
@@ -332,6 +358,16 @@ def upgrade():
     def verify_token(token):
         return auth.verify_id_token(token, clock_skew_seconds=60)
 
+    def debug_token(token: str) -> dict:
+        if not token:
+            return {}
+        meta = parse_token_metadata(token)
+        return {
+            "token": token[:32] + "...",
+            "metadata": meta,
+            "length": len(token),
+        }
+
     try:
         user_info = verify_token(id_token) if id_token else verify_token(cookie_token)
     except Exception as body_exc:
@@ -341,10 +377,18 @@ def upgrade():
             except Exception as cookie_exc:
                 return jsonify({
                     "status": "error",
-                    "message": f"Upgrade failed: body token error: {body_exc}; cookie token error: {cookie_exc}"
+                    "message": f"Upgrade failed: body token error: {body_exc}; cookie token error: {cookie_exc}",
+                    "debug": {
+                        "body_token": debug_token(id_token),
+                        "cookie_token": debug_token(cookie_token),
+                    },
                 }), 401
         else:
-            return jsonify({"status": "error", "message": f"Upgrade failed: {str(body_exc)}"}), 401
+            return jsonify({
+                "status": "error",
+                "message": f"Upgrade failed: {str(body_exc)}",
+                "debug": {"token": debug_token(id_token or cookie_token)},
+            }), 401
 
     try:
         uid = user_info["uid"]
